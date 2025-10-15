@@ -60,6 +60,72 @@ main(int argc, char *argv[])
 void
 memdump(char *fmt, char *data)
 {
-  // Your code here.
+  // data_cur tracks the current byte of data to read from
+  int data_cur = 0;
 
+  for (int i=0; fmt[i] != '\0'; i++) {
+    switch(fmt[i]) {
+      case('i'):
+        // print next 4 bytes as 32 bit integer in decimal
+        int i_result;
+        // little endian
+        i_result = (data[data_cur]) 
+                    | (data[data_cur + 1] << 8) 
+                    | (data[data_cur + 2] << 16) 
+                    | (data[data_cur + 3] << 24);
+        data_cur += 4;
+        printf("%d\n", i_result);
+        break;
+      case('p'):
+        // print next 8 bytes as 64 bit integer in hex
+        unsigned long long hex = ((unsigned long long) data[data_cur]) 
+                    | ((unsigned long long) data[data_cur + 1] << 8) 
+                    | ((unsigned long long) data[data_cur + 2] << 16) 
+                    | ((unsigned long long) data[data_cur + 3] << 24) 
+                    | ((unsigned long long) data[data_cur + 4] << 32) 
+                    | ((unsigned long long) data[data_cur + 5] << 40) 
+                    | ((unsigned long long) data[data_cur + 6] << 48) 
+                    | ((unsigned long long) data[data_cur + 7] << 56);
+        data_cur += 8;
+        printf("%llx\n", hex);
+        break;
+      case('h'):
+        // print next 2 bytes of data as 16 bit integer in decimal
+        short int result = (data[data_cur]) | (data[data_cur+1] << 8);
+        
+        data_cur += 2;
+        printf("%d\n", result);
+
+        break;
+      case('c'):
+        // print next 1 byte of data as 8 bit ASCII or 1 byte char
+        char c_result = data[data_cur];
+        data_cur++;
+        printf("%c\n", c_result);
+        break;
+      case('s'):
+        // next 8 bytes of data contain a 64-bit pointer to a C string; print the string
+        unsigned long long s_ptr = data[data_cur]
+                        | ((unsigned long long) data[data_cur+1] << 8)
+                        | ((unsigned long long) data[data_cur + 2] << 16)
+                        | ((unsigned long long) data[data_cur + 3] << 24)
+                        | ((unsigned long long) data[data_cur + 4] << 32)
+                        | ((unsigned long long) data[data_cur + 5] << 40)
+                        | ((unsigned long long) data[data_cur + 6] << 48)
+                        | ((unsigned long long) data[data_cur + 7] << 56);
+        data_cur += 8;
+        char *pstring = (char*) s_ptr;
+        printf("%s\n", pstring);
+        break;
+      case('S'):
+        // the rest of the data contains bytes of a null-terminated C string; print the string
+        for (int i=data_cur; data[i] != '\0'; i++) {
+          printf("%c", data[i]);
+        }
+        printf("\n");
+        break;
+      default:
+        // handle case where format value is invalid
+    }
+  }
 }
