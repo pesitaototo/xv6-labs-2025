@@ -5,7 +5,7 @@
 #include "kernel/fcntl.h"
 
 void
-find(char *path, char *search) {
+find(char *path, char *search, char *argv[], int argc) {
   char buf[512], *p;
   int fd;
   struct stat st;
@@ -25,19 +25,13 @@ find(char *path, char *search) {
   switch(st.type){
     case T_DEVICE:
     case T_FILE:
-      // use recursion here
-      printf("this is a file\n");
-      break;
     case T_DIR:
-      // keep traversing
-      // chdir(path);
-
       strcpy(buf, path);
       p = buf+strlen(buf); // p keeps track of where in the path we are
       *p++ = '/';
 
 
-      // what does read do again?
+      // read directory information
       while(read(fd, &de, sizeof(de)) == sizeof(de)) {
         if (de.inum == 0)
           continue;
@@ -51,11 +45,33 @@ find(char *path, char *search) {
         }
 
         if (st.type == T_DIR && strcmp(de.name, ".") != 0 && strcmp(de.name, "..") != 0) {
-          find(buf, search);
+          find(buf, search, argv, argc);
         }
 
+        // file was found
         if (st.type == T_FILE && strcmp(de.name, search) == 0) {
-          printf("%s\n", buf);
+          if (argc <= 3) {
+            printf("%s\n", buf);
+          } else {
+            // fork, wait, exec
+            int pid = fork(); // fork returns 0 to child, but pid to parent
+            if (pid == 0) {
+              char *execArgs[28];
+              
+              int i=0;
+              for(i=0; argv[i] && i < 28; i++) {
+                execArgs[i] = argv[i];
+              }
+              execArgs[i] = buf;
+              execArgs[i+1] = 0;
+              
+              // printf("running: %s %s %s\n", execArgs[0], execArgs[1], execArgs[2]);
+              exec(execArgs[0], execArgs);
+              exit(0);
+            } else {
+              pid = wait((int*)0);
+            }
+          }
         }
 
       }
@@ -78,12 +94,13 @@ find . b
 
 int
 main(int argc, char *argv[]) {
-  if (argc < 3 || argc > 3) {
-    fprintf(2, "Usage: find <dir> <filename>\n");
+  if (argc < 3 || argc > 32
+    || (argc > 3 && strcmp("-exec", argv[3]) != 0)) {
+    fprintf(2, "Usage: find <dir> <filename> [optional] -exec <commands ...>\n");
     exit(1);
   }
 
-  find(argv[1], argv[2]);
+  find(argv[1], argv[2], (argv+4), argc);
   exit(0);
 
 }
