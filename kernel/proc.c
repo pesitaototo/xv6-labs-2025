@@ -257,8 +257,8 @@ int
 kfork(void)
 {
   int i, pid;
-  struct proc *np;
-  struct proc *p = myproc();
+  struct proc *np; // new process (child)
+  struct proc *p = myproc(); // current process (parent)
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -272,6 +272,8 @@ kfork(void)
     return -1;
   }
   np->sz = p->sz;
+  // Lab: syscall, copy parent mask to child mask
+  np->mask = p->mask;
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);

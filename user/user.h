@@ -39,6 +39,7 @@ int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
 char* sbrk(int);
 char* sbrklazy(int);
+int interpose(int, char*);
 
 // printf.c
 void fprintf(int, const char*, ...) __attribute__ ((format (printf, 2, 3)));

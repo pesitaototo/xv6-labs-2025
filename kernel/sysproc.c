@@ -105,3 +105,22 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_interpose(void) {
+  // char path[512];
+  // char command[512];
+
+  int mask=0;
+  // int path_strlen = 0;
+  // int cmd_strlen = 0;
+  // 1 - mask, 2 - path
+
+  argint(0, &mask);
+  // path_strlen = argstr(2, path, 512);
+  // cmd_strlen = argstr(3, command, 512);
+
+  myproc()->mask = mask;
+
+  return 0;
+}
