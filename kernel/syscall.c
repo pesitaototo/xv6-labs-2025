@@ -138,13 +138,17 @@ syscall(void)
 
   // num of the syscall
   num = p->trapframe->a7;
-  // num = *(int *) 0;
 
-  // check if num is denied
-  if (p->mask & (1 << num)) {
-    printf("syscall %d prohibited!\n", num);
-    p->trapframe->a0 = -1;
-    return;
+  // check if num is masked
+  if ((p->mask & (1 << num))) {
+
+    char path[MAXPATH];
+    int path_len = argstr(0, path, MAXPATH);
+    if (strncmp(path, p->allowpath, path_len) != 0) {
+      // printf("path: %s\nallowpath: %s\n", path, p->allowpath);
+      p->trapframe->a0 = -1;
+      return;
+    }
   }
 
 

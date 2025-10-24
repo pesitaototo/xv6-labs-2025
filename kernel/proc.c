@@ -275,6 +275,9 @@ kfork(void)
   // Lab: syscall, copy parent mask to child mask
   np->mask = p->mask;
 
+  uint lenpath = strlen(p->allowpath);
+  strncpy(np->allowpath,p->allowpath, lenpath);
+
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 
