@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"riscv.h": "c",
+		"fcntl.h": "c",
+		"vm.h": "c"
+	}
+}
