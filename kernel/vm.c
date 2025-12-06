@@ -145,6 +145,26 @@ walkaddr(pagetable_t pagetable, uint64 va)
 void
 vmprint(pagetable_t pagetable) {
   // your code here
+  for (int i=0; i < 512; i++) {
+    pte_t pte = pagetable[i];
+    if ((pte & PTE_V) && (pte & (PTE_R | PTE_W | PTE_X))) {
+      // this pte points to a lower-level page table
+      // this is a leaf page
+      printf(".. inner page\n");
+
+
+      // pagetable[i] = 0;
+      // return;
+    } else if (pte & PTE_V) {
+      // backtrace()
+      uint64 child = PTE2PA(pte);
+
+      printf("outer page!\n");
+      vmprint((pagetable_t)child);
+      
+    }
+    // printf("");
+  }
 }
 #endif
 
