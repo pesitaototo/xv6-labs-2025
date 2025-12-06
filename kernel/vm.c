@@ -147,10 +147,12 @@ vmprint(pagetable_t pagetable) {
   // your code here
   for (int i=0; i < 512; i++) {
     pte_t pte = pagetable[i];
-    if ((pte & PTE_V) && (pte & (PTE_R | PTE_W | PTE_X))) {
+    if (pte & PTE_V && PTE_LEAF(pte)) {
       // this pte points to a lower-level page table
       // this is a leaf page
-      printf(".. inner page\n");
+      printf(".. .. .. %p: pte %p pa %p\n", (void*)((uint64)PGSIZE*i), (void*)pte, (void*) PTE2PA(pte));
+
+
 
 
       // pagetable[i] = 0;
@@ -159,9 +161,8 @@ vmprint(pagetable_t pagetable) {
       // backtrace()
       uint64 child = PTE2PA(pte);
 
-      printf("outer page!\n");
+      printf(".. %p: pte %p pa %p\n", (void*)((uint64)PGSIZE*i), (void*)pte, (void*) PTE2PA(pte));
       vmprint((pagetable_t)child);
-      
     }
     // printf("");
   }
